@@ -8,14 +8,14 @@ set(config_module_list
 	#
 	#drivers/barometer
 	#drivers/differential_pressure
-	#drivers/magnetometer
+	drivers/magnetometer
 	#drivers/telemetry
 
 	#drivers/imu/adis16448
 	#drivers/airspeed
-	#drivers/barometer/ms5611
+	drivers/barometer/ms5611
 	#drivers/blinkm
-	#drivers/imu/bmi160
+	drivers/imu/bmi160
 	#drivers/barometer/bmp280
 	drivers/boards
 	#drivers/bst
@@ -26,17 +26,17 @@ set(config_module_list
 	#drivers/hott
 	#drivers/iridiumsbd
 	#drivers/irlock
-	#drivers/imu/l3gd20
+	drivers/imu/l3gd20
 	drivers/led
-	#drivers/imu/lsm303d
+	drivers/imu/lsm303d
 	#drivers/magnetometer/hmc5883
 	#drivers/magnetometer/lis3mdl
 	#drivers/mb12xx
 	#drivers/mkblctrl
-	#drivers/imu/mpu6000
-	#drivers/imu/mpu9250
+	drivers/imu/mpu6000
+	drivers/imu/mpu9250
 	#drivers/oreoled
-	#drivers/protocol_splitter
+	drivers/protocol_splitter
 	#drivers/pwm_input
 	#drivers/pwm_out_sim
 	#drivers/px4flow
@@ -74,12 +74,12 @@ set(config_module_list
 	#systemcmds/motor_ramp
 	#systemcmds/motor_test
 	systemcmds/mtd
-	#systemcmds/nshterm
+	systemcmds/nshterm
 	systemcmds/param
 	systemcmds/perf
 	systemcmds/pwm
 	systemcmds/reboot
-	#systemcmds/sd_bench
+	systemcmds/sd_bench
 	systemcmds/top
 	#systemcmds/topic_listener
 	#systemcmds/tune_control
@@ -104,7 +104,7 @@ set(config_module_list
 	#modules/camera_feedback
 	#modules/commander
 	#modules/events
-	#modules/gpio_led
+	modules/gpio_led
 	#modules/land_detector
 	#modules/load_mon
 	modules/mavlink

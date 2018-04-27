@@ -51,6 +51,7 @@ UavcanGnssBridge::UavcanGnssBridge(uavcan::INode &node) :
 	_sub_fix(node),
 	_sub_fix2(node),
 	_pub_fix2(node),
+	_pub_fix(node),
 	_orb_to_uavcan_pub_timer(node, TimerCbBinder(this, &UavcanGnssBridge::broadcast_from_orb)),
 	_report_pub(nullptr)
 {
@@ -64,6 +65,7 @@ UavcanGnssBridge::~UavcanGnssBridge()
 int UavcanGnssBridge::init()
 {
 	int res = _pub_fix2.init(uavcan::TransferPriority::MiddleLower);
+	res = _pub_fix.init(uavcan::TransferPriority::MiddleLower);
 
 	if (res < 0) {
 		PX4_WARN("GNSS fix2 pub failed %i", res);
@@ -426,13 +428,18 @@ void UavcanGnssBridge::broadcast_from_orb(const uavcan::TimerEvent &)
 		PX4_WARN("GNSS ORB read errno %d", errno);
 		return;
 	}
-
+/*
 	// Convert to UAVCAN
 	using uavcan::equipment::gnss::Fix2;
 	Fix2 msg;
-
+*/
+	using uavcan::equipment::gnss::Fix;
+	Fix msg;
+	
 	msg.gnss_timestamp = uavcan::UtcTime::fromUSec(orb_msg.time_utc_usec);
-	msg.gnss_time_standard = Fix2::GNSS_TIME_STANDARD_UTC;
+	//msg.gnss_time_standard = Fix2::GNSS_TIME_STANDARD_UTC;
+
+	msg.gnss_time_standard = Fix::GNSS_TIME_STANDARD_UTC;
 
 	msg.longitude_deg_1e8   = std::int64_t(orb_msg.lon) * 10LL;
 	msg.latitude_deg_1e8    = std::int64_t(orb_msg.lat) * 10LL;
@@ -448,13 +455,17 @@ void UavcanGnssBridge::broadcast_from_orb(const uavcan::TimerEvent &)
 	// mode skipped
 	// sub mode skipped
 
+/*
 	// diagonal covariance matrix
 	msg.covariance.resize(2, orb_msg.eph * orb_msg.eph);
 	msg.covariance.resize(3, orb_msg.epv * orb_msg.epv);
 	msg.covariance.resize(6, orb_msg.s_variance_m_s * orb_msg.s_variance_m_s);
-
+*/
 	msg.pdop = (orb_msg.hdop > orb_msg.vdop) ? orb_msg.hdop : orb_msg.vdop;  // this is a hack :(
 
 	// Publishing now
-	(void) _pub_fix2.broadcast(msg);
+	//(void) _pub_fix2.broadcast(msg);
+	
+	(void) _pub_fix.broadcast(msg);
+
 }

@@ -55,6 +55,7 @@
 
 class UavcanGnssBridge : public IUavcanSensorBridge
 {
+	//static constexpr unsigned ORB_TO_UAVCAN_FREQUENCY_HZ = 10;
 	static constexpr unsigned ORB_TO_UAVCAN_FREQUENCY_HZ = 10;
 
 public:
@@ -103,6 +104,7 @@ private:
 	uavcan::Subscriber<uavcan::equipment::gnss::Fix, FixCbBinder> _sub_fix;
 	uavcan::Subscriber<uavcan::equipment::gnss::Fix2, Fix2CbBinder> _sub_fix2;
 	uavcan::Publisher<uavcan::equipment::gnss::Fix2> _pub_fix2;
+	uavcan::Publisher<uavcan::equipment::gnss::Fix> _pub_fix;
 	uavcan::TimerEventForwarder<TimerCbBinder> _orb_to_uavcan_pub_timer;
 	int _receiver_node_id = -1;
 

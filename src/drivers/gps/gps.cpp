@@ -1024,7 +1024,8 @@ GPS *GPS::instantiate(int argc, char *argv[], Instance instance)
 {
 	const char *device_name = GPS_DEFAULT_UART_PORT;
 	const char *device_name_secondary = nullptr;
-	bool fake_gps = false;
+	//bool fake_gps = false;
+	bool fake_gps = true;
 	bool enable_sat_info = false;
 	GPSHelper::Interface interface = GPSHelper::Interface::UART;
 	gps_driver_mode_t mode = GPS_DRIVER_MODE_NONE;
