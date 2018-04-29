@@ -44,6 +44,8 @@
 
 class UavcanMagnetometerBridge : public UavcanCDevSensorBridgeBase
 {
+	static constexpr unsigned ORB_TO_UAVCAN_FREQUENCY_MAG_HZ = 20;
+
 public:
 	static const char *const NAME;
 
@@ -59,12 +61,23 @@ private:
 
 	void mag_sub_cb(const uavcan::ReceivedDataStructure<uavcan::equipment::ahrs::MagneticFieldStrength> &msg);
 
+	void broadcast_from_orb(const uavcan::TimerEvent &);
+	
 	typedef uavcan::MethodBinder < UavcanMagnetometerBridge *,
 		void (UavcanMagnetometerBridge::*)
 		(const uavcan::ReceivedDataStructure<uavcan::equipment::ahrs::MagneticFieldStrength> &) >
 		MagCbBinder;
 
+	typedef uavcan::MethodBinder<UavcanMagnetometerBridge *,
+		void (UavcanMagnetometerBridge::*)(const uavcan::TimerEvent &)>
+		TimerCbBinder;
+
 	uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength, MagCbBinder> _sub_mag;
+	uavcan::Publisher<uavcan::equipment::ahrs::MagneticFieldStrength> _pub_mag;
+
+	uavcan::TimerEventForwarder<TimerCbBinder> _orb_to_uavcan_pub_timer;
+	
 	struct mag_calibration_s _scale = {};
 	mag_report _report =  {};
+	int _orb_sub_mag = -1;                  ///< uORB sub for Magnetometer, used for bridging uORB --> UAVCAN
 };

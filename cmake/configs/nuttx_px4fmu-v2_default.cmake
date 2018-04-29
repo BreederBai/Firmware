@@ -1,6 +1,6 @@
 px4_nuttx_configure(HWCLASS m4 CONFIG nsh ROMFS y ROMFSROOT px4fmu_common IO px4io-v2)
 
-#set(config_uavcan_num_ifaces 2)
+set(config_uavcan_num_ifaces 2)
 
 set(config_module_list
 	#
@@ -101,21 +101,21 @@ set(config_module_list
 	#
 	# General system control
 	#
-	modules/camera_feedback
-	modules/commander
+	##modules/camera_feedback
+	##modules/commander
 	modules/events
 	#modules/gpio_led
-	modules/land_detector
+	##modules/land_detector
 	modules/load_mon
 	modules/mavlink
-	modules/navigator
-	#modules/uavcan
+	##modules/navigator
+	modules/uavcan
 
 	#
 	# Estimation modules
 	#
 	#modules/attitude_estimator_q
-	modules/ekf2
+	##modules/ekf2
 	#modules/local_position_estimator
 	#modules/position_estimator_inav
 	#modules/landing_target_estimator

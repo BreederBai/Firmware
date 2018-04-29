@@ -44,7 +44,9 @@ const char *const UavcanMagnetometerBridge::NAME = "mag";
 
 UavcanMagnetometerBridge::UavcanMagnetometerBridge(uavcan::INode &node) :
 	UavcanCDevSensorBridgeBase("uavcan_mag", "/dev/uavcan/mag", MAG_BASE_DEVICE_PATH, ORB_ID(sensor_mag)),
-	_sub_mag(node)
+	_sub_mag(node),
+	_pub_mag(node),
+	_orb_to_uavcan_pub_timer(node, TimerCbBinder(this, &UavcanMagnetometerBridge::broadcast_from_orb))
 {
 	_device_id.devid_s.devtype = DRV_MAG_DEVTYPE_HMC5883;     // <-- Why?
 
@@ -67,7 +69,9 @@ int UavcanMagnetometerBridge::init()
 		DEVICE_LOG("failed to start uavcan sub: %d", res);
 		return res;
 	}
-
+	_orb_to_uavcan_pub_timer.startPeriodic(
+		uavcan::MonotonicDuration::fromUSec(1000000U / ORB_TO_UAVCAN_FREQUENCY_MAG_HZ));
+	
 	return 0;
 }
 
@@ -164,3 +168,52 @@ void UavcanMagnetometerBridge::mag_sub_cb(const
 
 	publish(msg.getSrcNodeID().get(), &_report);
 }
+
+void UavcanMagnetometerBridge::broadcast_from_orb(const uavcan::TimerEvent &)
+{
+	if (_orb_sub_mag < 0) {
+		// ORB subscription stops working if this is relocated into init()
+		_orb_sub_mag = orb_subscribe(ORB_ID(sensor_mag));
+	
+		if (_orb_sub_mag < 0) {
+			PX4_WARN("MAG ORB sub errno %d", errno);
+			return;
+		}
+	
+		PX4_WARN("MAG ORB fd %d", _orb_sub_mag);
+	}
+	
+	{
+		bool updated = false;
+		const int res = orb_check(_orb_sub_mag, &updated);
+	
+		if (res < 0) {
+			PX4_WARN("MAG ORB check err %d %d", res, errno);
+			return;
+		}
+	
+		if (!updated) {
+			return;
+		}
+	}
+	
+	auto orb_msg = ::sensor_mag_s();
+	const int res = orb_copy(ORB_ID(sensor_mag), _orb_sub_mag, &orb_msg);
+	
+	if (res < 0) {
+		PX4_WARN("MAG ORB read errno %d", errno);
+		return;
+	}
+	
+	using uavcan::equipment::ahrs::MagneticFieldStrength;
+	MagneticFieldStrength msg;
+
+	msg.magnetic_field_ga[0] = orb_msg.x;
+	msg.magnetic_field_ga[1] = orb_msg.y;
+	msg.magnetic_field_ga[2] = orb_msg.z;
+	
+	// Publishing now
+	(void) _pub_mag.broadcast(msg);
+
+}
+
